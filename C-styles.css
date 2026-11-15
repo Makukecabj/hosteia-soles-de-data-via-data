@@ -1859,7 +1859,11 @@ nav > .container > .btn-reservar {
     margin-bottom: 15px;
 }
 
-.cta p {
+.cta #rd-booking {
+    max-width: 1040px;
+    margin: 0 auto;
+}
+.cta p#cta-subtitle {
     font-size: 1.1rem;
     color: var(--color-dark);
     opacity: 0.8;
@@ -2558,7 +2562,7 @@ header:not(.scrolled) .theme-toggle {
         font-size: 1.8rem;
     }
 
-    .cta p {
+    .cta p#cta-subtitle {
         font-size: 1rem;
     }
 

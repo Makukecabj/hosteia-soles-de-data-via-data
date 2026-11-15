@@ -170,7 +170,6 @@ let savedConfig = null;
 let lbItems = [];
 let lbIndex = 0;
 let waBase = '#';
-let waNameGlobal = '';
 
 function el(id) { return document.getElementById(id); }
 
@@ -309,7 +308,6 @@ function render(c) {
         }
         waLink = `${waBase}?text=${waMsg}`;
     }
-    waNameGlobal = cleanDisplayName(b.short_name || b.name || '');
 
     document.title = `${b.name || ''} | ${b.category || ''}`;
     setMeta('description', 'meta-description', b.description || '');
@@ -566,7 +564,7 @@ function render(c) {
 
     let contactHtml = '';
     if (con.whatsapp) {
-        contactHtml += `<div class="contact-card"><h3>${t('contact_whatsapp_title')}</h3><p>${t('contact_whatsapp_desc')}</p><a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="btn btn-gold">${t('contact_whatsapp_btn')}</a></div>`;
+        contactHtml += `<div class="contact-card"><h3>${t('contact_whatsapp_title')}</h3><p>${t('contact_whatsapp_desc')}</p><a href="#reservas" class="btn btn-gold">${t('contact_whatsapp_btn')}</a></div>`;
     }
     if (con.email) {
         contactHtml += `<div class="contact-card"><h3>${t('contact_email_title')}</h3><p>${t('contact_email_desc')}</p><a href="mailto:${escapeHtml(con.email)}" class="btn btn-ghost contact-email-btn">${escapeHtml(con.email)}</a></div>`;
@@ -604,39 +602,22 @@ function render(c) {
 
     const bookingSection = document.getElementById('reservas');
     if (bookingSection) {
-        // Al cambiar de idioma, un error viejo quedaria en el idioma anterior
-        const bkErr = document.getElementById('bk-error');
-        if (bkErr) bkErr.hidden = true;
         if (!con.whatsapp) {
             bookingSection.style.display = 'none';
         } else {
             bookingSection.style.display = '';
-            el('booking-eyebrow').textContent = t('bk_eyebrow');
-            el('booking-title').textContent = t('bk_title');
-            el('bk-label-checkin').textContent = t('bk_checkin');
-            el('bk-label-checkout').textContent = t('bk_checkout');
-            el('bk-label-guests').textContent = t('bk_guests');
-            el('bk-submit').textContent = t('bk_submit');
-            el('bk-note').textContent = t('bk_note');
-            const sel = el('bk-guests');
-            const prevVal = sel.value;
-            if (!sel.options.length) {
-                for (let i = 1; i <= 9; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.textContent = i;
-                    sel.appendChild(opt);
-                }
-                const optPlus = document.createElement('option');
-                optPlus.value = '10';
-                optPlus.textContent = '+9';
-                sel.appendChild(optPlus);
+            const bkEyebrow = el('booking-eyebrow');
+            if (bkEyebrow) bkEyebrow.textContent = t('bk_eyebrow');
+            const bkTitle = el('booking-title');
+            if (bkTitle) bkTitle.textContent = t('bk_title');
+            // Respaldo estatico: el motor de reservas lo reemplaza al montarse.
+            const bkNote = el('bk-note');
+            if (bkNote) bkNote.textContent = t('bk_note');
+            const bkFallback = el('bk-fallback');
+            if (bkFallback) {
+                bkFallback.href = waLink;
+                bkFallback.textContent = t('bk_submit');
             }
-            sel.value = prevVal || '2';
-            const isoToday = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            const now = new Date();
-            el('bk-checkin').min = isoToday(now);
-            el('bk-checkout').min = isoToday(now);
         }
     }
 
@@ -752,52 +733,9 @@ function initInteractions() {
     document.querySelectorAll('.reveal').forEach(el => window._revealObserver.observe(el));
 }
 
-function initBookingForm() {
-    const form = document.getElementById('booking-form');
-    if (!form) return;
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const errEl = document.getElementById('bk-error');
-        if (!waBase || waBase === '#') return;
-        const ciV = el('bk-checkin').value;
-        const coV = el('bk-checkout').value;
-        const guestsRaw = parseInt(el('bk-guests').value, 10) || 2;
-        const guests = guestsRaw >= 10 ? '+9' : String(guestsRaw);
-        if (!ciV || !coV) {
-            errEl.textContent = t('bk_error_missing');
-            errEl.hidden = false;
-            return;
-        }
-        const ci = new Date(ciV + 'T12:00:00');
-        const co = new Date(coV + 'T12:00:00');
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        if (co <= ci) {
-            errEl.textContent = t('bk_error_order');
-            errEl.hidden = false;
-            return;
-        }
-        if (ci < today) {
-            errEl.textContent = t('bk_error_past');
-            errEl.hidden = false;
-            return;
-        }
-        errEl.hidden = true;
-        const nights = Math.round((co - ci) / 86400000);
-        const fmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-        const nWord = nights === 1 ? t('bk_night_one') : t('bk_night_many');
-        const msg = currentLang === 'en'
-            ? `Hi ${waNameGlobal}! I'd like to book from ${fmt(ci)} to ${fmt(co)} (${nights} ${nWord}) for ${guests} ${guests === '+9' ? 'guests' : (guestsRaw === 1 ? t('bk_guest_one') : t('bk_guest_many'))}. Is it available?`
-            : `Hola ${waNameGlobal}! Quiero reservar del ${fmt(ci)} al ${fmt(co)} (${nights} ${nWord}) para ${guests} ${guestsRaw === 1 ? t('bk_guest_one') : t('bk_guest_many')}. ¿Hay disponibilidad?`;
-        window.open(`${waBase}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-    });
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
     document.getElementById('lang-toggle').addEventListener('click', toggleLang);
-
-    initBookingForm();
 
     el('lb-close').addEventListener('click', closeLightbox);
     el('lb-prev').addEventListener('click', prevSlide);

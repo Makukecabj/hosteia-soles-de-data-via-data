@@ -244,26 +244,12 @@
             <div class="container">
                 <h2 id="cta-heading">¿Listo para tu aventura?</h2>
                 <p id="cta-subtitle">Reserva ahora y vive una experiencia inolvidable</p>
-                <div class="booking-bar" id="booking-bar">
-                    <form class="booking-form" id="booking-form" novalidate>
-                        <div class="form-group">
-                            <label for="bk-checkin"><i class="fas fa-calendar-alt"></i> <span id="bk-label-checkin">Llegada</span></label>
-                            <input type="date" id="bk-checkin" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="bk-checkout"><i class="fas fa-calendar-alt"></i> <span id="bk-label-checkout">Salida</span></label>
-                            <input type="date" id="bk-checkout" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="bk-guests"><i class="fas fa-users"></i> <span id="bk-label-guests">Huéspedes</span></label>
-                            <select id="bk-guests"></select>
-                        </div>
-                        <button type="submit" class="btn-buscar" id="bk-submit"><i class="fab fa-whatsapp"></i> <span id="bk-submit-text">Continuar en WhatsApp</span></button>
-                    </form>
-                    <p class="bk-error" id="bk-error" hidden></p>
+                <div id="rd-booking" data-rd-booking>
                     <p class="bk-note" id="bk-note">Completa los datos y te llevamos a WhatsApp con la consulta ya armada.</p>
+                    <p style="margin-top:18px;">
+                        <a id="bk-fallback" href="#" class="btn-reservar-cta" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> <span id="bk-submit-text">Continuar en WhatsApp</span></a>
+                    </p>
                 </div>
-                <a id="cta-btn" href="#" class="btn-reservar-cta" target="_blank" rel="noopener noreferrer"><i class="fas fa-calendar-check"></i> <span id="cta-btn-text">Ver disponibilidad</span></a>
             </div>
         </section>
     </main>
@@ -303,7 +289,7 @@
     <script src="config-data.js"></script>
     <script src="js/main-C.js"></script>
 <style>.preview-back-btn{position:fixed;top:20px;left:20px;z-index:10000;background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:30px;text-decoration:none;font-family:Poppins,sans-serif;font-size:0.9rem;}.preview-back-btn:hover{background:rgba(0,0,0,0.9);}</style><a href="index.html" class="preview-back-btn">← Volver al selector</a><!--RESERVA-DEMO-INICIO-->
-<script>window.RD_CONFIG = {"name": "Hosteia Soles de Data", "sellerWhatsapp": "", "currency": "USD", "prices": [40, 55, 70]};</script>
+<script>window.RD_CONFIG = {"name": "Hosteia Soles de Data", "whatsapp": "593982697538", "email": "", "sellerWhatsapp": "", "currency": "USD", "prices": [40, 55, 70]};</script>
 <script src="js/reserva_demo.js"></script>
 <!--RESERVA-DEMO-FIN-->
 </body>

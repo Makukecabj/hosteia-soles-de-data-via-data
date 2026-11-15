@@ -1,379 +1,552 @@
-/* Reserva online - DEMOSTRACION (sin cobros ni reservas reales).
+/* Reserva online - DEMO embebida en la seccion de reservas.
  *
- * Muestra el recorrido completo (fechas, habitacion, datos, pago, confirmacion)
- * para que el dueño vea como podria quedar. No hace ninguna llamada de red,
- * no guarda ni envia nada: todo vive en memoria del navegador.
- * Los datos de tarjeta son de prueba, de solo lectura, para que nadie escriba
- * una tarjeta real en una pagina que no cobra.
+ * No hay modal ni boton flotante: el motor se monta dentro del contenedor
+ * [data-rd-booking] (o #rd-booking) que ya existe en la plantilla. Calcula
+ * noches, habitaciones y total en vivo, y el boton final abre WhatsApp con la
+ * consulta armada. No cobra, no reserva y no envia datos: todo vive en el
+ * navegador.
  *
- * Config (window.RD_CONFIG): name, sellerWhatsapp, currency, prices[3].
+ * Los colores se leen de las variables CSS del sitio en tiempo de ejecucion
+ * (--gold / --accent / --color-orange, --ink / --color-dark, --card-bg,
+ * --line, etc.), asi el formulario hereda la paleta clara u oscura.
+ *
+ * Config (window.RD_CONFIG): name, whatsapp, email, sellerWhatsapp,
+ * currency, prices[3].
  */
 (function () {
-    'use strict';
-    if (window.__rdLoaded) return;
-    window.__rdLoaded = true;
-  
-    var CFG = window.RD_CONFIG || {};
-    var NAME = CFG.name || 'el alojamiento';
-    var SELLER = String(CFG.sellerWhatsapp || '').replace(/\D/g, '');
-    var CURRENCY = CFG.currency || 'USD';
-    var PRICES = (CFG.prices && CFG.prices.length === 3) ? CFG.prices : [40, 55, 70];
-  
-    var TXT = {
-      es: {
-        pill: 'Probar reserva online',
-        banner: 'VISTA PREVIA \u00b7 Demostraci\u00f3n: no se procesan pagos ni reservas reales',
-        title: 'Reserva online',
-        steps: ['Fechas', 'Habitaci\u00f3n', 'Datos', 'Pago', 'Listo'],
-        s1: 'Fechas y hu\u00e9spedes', checkin: 'Llegada', checkout: 'Salida',
-        adults: 'Adultos', children: 'Ni\u00f1os',
-        e_dates: 'La salida debe ser posterior a la llegada.',
-        e_dates_max: 'La demo permite hasta 30 noches.',
-        e_dates_req: 'Seleccionar las fechas de llegada y salida.',
-        s2: 'Elegir habitaci\u00f3n', example: 'Habitaciones y precios de ejemplo',
-        nightWord: ['noche', 'noches'], guestWord: ['hu\u00e9sped', 'hu\u00e9spedes'],
-        perNight: 'por noche', roomsNeeded: 'habitaciones', total: 'Total',
-        up: 'hasta', people: 'personas',
-        s3: 'Datos del hu\u00e9sped', name: 'Nombre y apellido', email: 'Correo electr\u00f3nico',
-        phone: 'Tel\u00e9fono (opcional)', notes: 'Comentarios (opcional)',
-        e_name: 'Ingresar el nombre.', e_email: 'Ingresar un correo v\u00e1lido.',
-        s4: 'Pago con tarjeta', testCard: 'Tarjeta de prueba: no se usan datos reales',
-        cardNumber: 'N\u00famero de tarjeta', cardName: 'Titular', cardExp: 'Vence', cardCvc: 'CVC',
-        summary: 'Resumen', pay: 'Pagar', processing: 'Procesando el pago\u2026',
-        s5: 'Reserva de demostraci\u00f3n confirmada', code: 'C\u00f3digo',
-        emailPrev: 'As\u00ed recibir\u00eda el hu\u00e9sped su confirmaci\u00f3n por correo',
-        emailSubject: 'Reserva confirmada', emailTo: 'Para',
-        emailBody: 'Tu reserva qued\u00f3 confirmada. Te esperamos.',
-        notice: 'Esto es una demostraci\u00f3n: no se cre\u00f3 ninguna reserva ni se realiz\u00f3 ning\u00fan cobro. Los datos ingresados no se guardan ni se env\u00edan.',
-        want: 'Quiero esto en mi alojamiento', wantMsg: 'Hola! Vi la demo de reserva online de ',
-        back: 'Volver', next: 'Continuar', close: 'Cerrar', from: 'Del', to: 'al'
-      },
-      en: {
-        pill: 'Try online booking',
-        banner: 'PREVIEW \u00b7 Demo: no real payments or bookings are processed',
-        title: 'Online booking',
-        steps: ['Dates', 'Room', 'Details', 'Payment', 'Done'],
-        s1: 'Dates and guests', checkin: 'Check-in', checkout: 'Check-out',
-        adults: 'Adults', children: 'Children',
-        e_dates: 'Check-out must be after check-in.',
-        e_dates_max: 'The demo allows up to 30 nights.',
-        e_dates_req: 'Select check-in and check-out dates.',
-        s2: 'Choose a room', example: 'Sample rooms and prices',
-        nightWord: ['night', 'nights'], guestWord: ['guest', 'guests'],
-        perNight: 'per night', roomsNeeded: 'rooms', total: 'Total',
-        up: 'up to', people: 'people',
-        s3: 'Guest details', name: 'Full name', email: 'Email',
-        phone: 'Phone (optional)', notes: 'Comments (optional)',
-        e_name: 'Enter a name.', e_email: 'Enter a valid email.',
-        s4: 'Card payment', testCard: 'Test card: no real data is used',
-        cardNumber: 'Card number', cardName: 'Cardholder', cardExp: 'Expires', cardCvc: 'CVC',
-        summary: 'Summary', pay: 'Pay', processing: 'Processing payment\u2026',
-        s5: 'Demo booking confirmed', code: 'Code',
-        emailPrev: 'This is how the guest would receive the email confirmation',
-        emailSubject: 'Booking confirmed', emailTo: 'To',
-        emailBody: 'Your booking is confirmed. We look forward to hosting you.',
-        notice: 'This is a demo: no booking was created and no charge was made. Entered data is neither saved nor sent.',
-        want: 'I want this for my property', wantMsg: 'Hi! I saw the online booking demo of ',
-        back: 'Back', next: 'Continue', close: 'Close', from: 'From', to: 'to'
-      }
-    };
-  
-    function lang() {
-      return /^en/i.test(document.documentElement.lang || '') ? 'en' : 'es';
+  'use strict';
+  if (window.__rdLoaded) return;
+  window.__rdLoaded = true;
+
+  var CFG = window.RD_CONFIG || {};
+  var NAME = CFG.name || 'el alojamiento';
+  var PHONE = String(CFG.whatsapp || '').replace(/\D/g, '');
+  var EMAIL = String(CFG.email || '').trim();
+  var SELLER = String(CFG.sellerWhatsapp || '').replace(/\D/g, '');
+  var CURRENCY = CFG.currency || 'USD';
+  var PRICES = (CFG.prices && CFG.prices.length === 3) ? CFG.prices : [40, 55, 70];
+  var MAX_NIGHTS = 60;
+  var MAX_ROOMS = 6;
+
+  var WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+    '<path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.47-1.76-1.64-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"/>' +
+    '<path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.32a8.2 8.2 0 0 1-1.26-4.34c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24z"/></svg>';
+
+  var TXT = {
+    es: {
+      badge: 'Demo',
+      lead: 'Vista previa del motor de reservas. No se cobra nada: el botón abre WhatsApp con tu consulta ya armada.',
+      checkin: 'Llegada',
+      checkout: 'Salida',
+      adults: 'Adultos',
+      children: 'Niños',
+      rooms: 'Habitaciones',
+      nights: 'Noches',
+      roomsTitle: 'Elegí tu habitación',
+      roomsHint: 'Precios de referencia por noche',
+      cap: 'Hasta {n} personas',
+      perNight: 'por noche',
+      summary: 'Tu reserva',
+      rowRoom: 'Habitación',
+      rowGuests: 'Huéspedes',
+      rowNights: 'Noches',
+      total: 'Total estimado',
+      night: ['noche', 'noches'],
+      guest: ['huésped', 'huéspedes'],
+      adult: ['adulto', 'adultos'],
+      child: ['niño', 'niños'],
+      cta: 'Consultar por WhatsApp',
+      ctaMail: 'Consultar por email',
+      note: 'Coordinás disponibilidad y precio final por WhatsApp. Sin pagos online.',
+      noteNoContact: 'El alojamiento todavía no cargó un contacto para reservas.',
+      priceNote: 'Tarifas de referencia. El precio final se confirma por WhatsApp.',
+      seller: '¿Querés reservas online así en tu alojamiento?',
+      errMissing: 'Elegí las fechas de llegada y salida.',
+      errOrder: 'La salida tiene que ser posterior a la llegada.',
+      errMax: 'Para esta consulta, elegí hasta ' + MAX_NIGHTS + ' noches.',
+      errRooms: 'Sumá habitaciones para que entren todos los huéspedes.',
+      waIntro: 'Hola {name}! Quiero consultar disponibilidad:',
+      waCheckin: 'Llegada',
+      waCheckout: 'Salida',
+      waGuests: 'Huéspedes',
+      waRoom: 'Habitación',
+      waNights: 'Noches',
+      waTotal: 'Total estimado',
+      mailSubject: 'Consulta de reserva en {name}',
+      sellerMsg: 'Hola! Vi la demo de reserva online de {name} y quiero algo así en mi alojamiento.'
+    },
+    en: {
+      badge: 'Demo',
+      lead: 'Booking engine preview. Nothing is charged: the button opens WhatsApp with your inquiry ready to send.',
+      checkin: 'Check-in',
+      checkout: 'Check-out',
+      adults: 'Adults',
+      children: 'Children',
+      rooms: 'Rooms',
+      nights: 'Nights',
+      roomsTitle: 'Choose your room',
+      roomsHint: 'Sample prices per night',
+      cap: 'Up to {n} people',
+      perNight: 'per night',
+      summary: 'Your booking',
+      rowRoom: 'Room',
+      rowGuests: 'Guests',
+      rowNights: 'Nights',
+      total: 'Estimated total',
+      night: ['night', 'nights'],
+      guest: ['guest', 'guests'],
+      adult: ['adult', 'adults'],
+      child: ['child', 'children'],
+      cta: 'Check on WhatsApp',
+      ctaMail: 'Check by email',
+      note: 'You confirm availability and the final price on WhatsApp. No online payment.',
+      noteNoContact: 'This property has not set a booking contact yet.',
+      priceNote: 'Sample rates. The final price is confirmed on WhatsApp.',
+      seller: 'Want online booking like this for your property?',
+      errMissing: 'Select check-in and check-out dates.',
+      errOrder: 'Check-out must be after check-in.',
+      errMax: 'For this inquiry, choose up to ' + MAX_NIGHTS + ' nights.',
+      errRooms: 'Add rooms so all guests fit.',
+      waIntro: 'Hi {name}! I would like to check availability:',
+      waCheckin: 'Check-in',
+      waCheckout: 'Check-out',
+      waGuests: 'Guests',
+      waRoom: 'Room',
+      waNights: 'Nights',
+      waTotal: 'Estimated total',
+      mailSubject: 'Booking inquiry at {name}',
+      sellerMsg: 'Hi! I saw the online booking demo for {name} and I want something like this for my property.'
     }
-    function T(k) { return TXT[lang()][k]; }
-  
-    /* ---------- utilidades ---------- */
-    function h(tag, attrs, kids) {
-      var e = document.createElement(tag);
-      if (attrs) Object.keys(attrs).forEach(function (k) {
-        if (k === 'class') e.className = attrs[k];
-        else if (k === 'text') e.textContent = attrs[k];
-        else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
-        else if (attrs[k] !== false && attrs[k] !== null) e.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
-      });
-      (kids || []).forEach(function (c) {
-        if (c === null || c === undefined) return;
-        e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-      });
-      return e;
+  };
+
+  function lang() {
+    return /^en/i.test(document.documentElement.lang || '') ? 'en' : 'es';
+  }
+  function T(k) { return TXT[lang()][k]; }
+
+  /* ---------- utilidades ---------- */
+  function h(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'class') e.className = attrs[k];
+      else if (k === 'text') e.textContent = attrs[k];
+      else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] !== false && attrs[k] !== null) e.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
+    });
+    (kids || []).forEach(function (c) {
+      if (c === null || c === undefined) return;
+      e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function addDays(iso, n) {
+    var p = iso.split('-').map(Number);
+    var d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n));
+    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+  }
+  function nightsBetween(a, b) {
+    if (!a || !b) return 0;
+    var pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+    return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 86400000);
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var p = iso.split('-').map(Number);
+    return new Date(Date.UTC(p[0], p[1] - 1, p[2])).toLocaleDateString(
+      lang() === 'en' ? 'en-US' : 'es-AR',
+      { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  }
+  function money(n) {
+    var loc = lang() === 'en' ? 'en-US' : 'es-AR';
+    var s = Number(n).toLocaleString(loc, { maximumFractionDigits: 0 });
+    return CURRENCY + ' ' + s;
+  }
+  function plural(n, words) { return n === 1 ? words[0] : words[1]; }
+  function fill(tpl, key, val) { return tpl.replace('{' + key + '}', val); }
+
+  /* ---------- color tomado del sitio ---------- */
+  function parseColor(v) {
+    v = (v || '').trim();
+    if (!v || /^var\(/i.test(v)) return null;
+    var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);
+    if (m) {
+      var x = m[1].length === 3 ? m[1].replace(/(.)/g, '$1$1') : m[1];
+      return [parseInt(x.slice(0, 2), 16), parseInt(x.slice(2, 4), 16), parseInt(x.slice(4, 6), 16)];
     }
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
-    function todayISO() {
-      var d = new Date();
-      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    m = /^rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/i.exec(v);
+    return m ? [+m[1], +m[2], +m[3]] : null;
+  }
+  function varColor(el, names) {
+    if (!el || !window.getComputedStyle) return null;
+    var cs = getComputedStyle(el);
+    for (var i = 0; i < names.length; i++) {
+      var rgb = parseColor(cs.getPropertyValue(names[i]));
+      if (rgb) return rgb;
     }
-    function addDays(iso, n) {
-      var p = iso.split('-').map(Number);
-      var d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n));
-      return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
-    }
-    function nightsBetween(a, b) {
-      var pa = a.split('-').map(Number), pb = b.split('-').map(Number);
-      return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 86400000);
-    }
-    function fmtDate(iso) {
-      var p = iso.split('-').map(Number);
-      return new Date(Date.UTC(p[0], p[1] - 1, p[2])).toLocaleDateString(
-        lang() === 'en' ? 'en-US' : 'es', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-    }
-    function money(n) {
-      var loc = lang() === 'en' ? 'en-US' : 'es';
-      var s = Number(n).toLocaleString(loc, { maximumFractionDigits: 0 });
-      return (CURRENCY === 'USD' ? 'USD ' : CURRENCY + ' ') + s;
-    }
-    function plural(n, words) { return n === 1 ? words[0] : words[1]; }
-  
-    /* ---------- color de acento tomado del sitio ---------- */
-    function parseColor(v) {
-      v = (v || '').trim();
-      var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);
-      if (m) {
-        var x = m[1].length === 3 ? m[1].replace(/(.)/g, '$1$1') : m[1];
-        return [parseInt(x.slice(0, 2), 16), parseInt(x.slice(2, 4), 16), parseInt(x.slice(4, 6), 16)];
-      }
-      m = /^rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/i.exec(v);
-      return m ? [+m[1], +m[2], +m[3]] : null;
-    }
-    function siteAccent() {
-      var cs = getComputedStyle(document.documentElement);
-      var names = ['--gold', '--accent', '--color-orange', '--primary', '--brand'];
-      for (var i = 0; i < names.length; i++) {
-        var v = cs.getPropertyValue(names[i]);
-        if (parseColor(v)) return v.trim();
-      }
-      return '#b8863b';
-    }
-    function onAccent(rgb) {
-      var l = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
-      return l > 0.6 ? '#1a1a1a' : '#ffffff';
-    }
-  
-    /* ---------- estado ---------- */
-    var S = null;
-    function freshState() {
-      var t = todayISO();
-      return { step: 1, checkin: addDays(t, 14), checkout: addDays(t, 17), adults: 2, children: 0,
-               room: 0, name: '', email: '', phone: '', notes: '', code: '', error: '' };
-    }
-    function guests() { return S.adults + S.children; }
-    var ROOMS = [
-      { es: ['Habitaci\u00f3n doble', 'Cama matrimonial o dos individuales'], en: ['Double room', 'Double bed or two single beds'], cap: 2 },
-      { es: ['Habitaci\u00f3n triple', 'Ideal para amigos o familias chicas'], en: ['Triple room', 'Great for friends or small families'], cap: 3 },
-      { es: ['Habitaci\u00f3n familiar', 'M\u00e1s espacio para toda la familia'], en: ['Family room', 'More space for the whole family'], cap: 4 }
+    return null;
+  }
+  function rgbStr(rgb) { return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')'; }
+  function luminance(rgb) {
+    return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
+  }
+  function mix(a, b, weight) {
+    return [
+      Math.round(a[0] * weight + b[0] * (1 - weight)),
+      Math.round(a[1] * weight + b[1] * (1 - weight)),
+      Math.round(a[2] * weight + b[2] * (1 - weight))
     ];
-    function roomQty(i) { return Math.max(1, Math.ceil(guests() / ROOMS[i].cap)); }
-    function roomTotal(i) { return PRICES[i] * nightsBetween(S.checkin, S.checkout) * roomQty(i); }
-  
-    /* ---------- DOM base ---------- */
-    var root, overlay, dialog, body, banner, lastFocus, pill;
-  
-    function build() {
-      var rgb = parseColor(siteAccent()) || [184, 134, 59];
-      root = h('div', { class: 'rd-root', id: 'rd-root' });
-      root.style.setProperty('--rd-accent', 'rgb(' + rgb.join(',') + ')');
-      root.style.setProperty('--rd-on-accent', onAccent(rgb));
-  
-      pill = h('button', { class: 'rd-pill', type: 'button', onclick: open }, [
-        h('span', { class: 'rd-pill-tag', text: 'DEMO' }), h('span', { class: 'rd-pill-text', text: T('pill') })
-      ]);
-  
-      banner = h('div', { class: 'rd-banner' });
-      body = h('div', { class: 'rd-body' });
-      dialog = h('div', { class: 'rd-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'rd-title', tabindex: '-1' }, [
-        h('button', { class: 'rd-x', type: 'button', 'aria-label': 'Cerrar', text: '\u00d7', onclick: close }),
-        banner, body
-      ]);
-      overlay = h('div', { class: 'rd-overlay', hidden: true, onclick: function (e) { if (e.target === overlay) close(); } }, [dialog]);
-      root.appendChild(pill);
-      root.appendChild(overlay);
-      document.body.appendChild(root);
-  
-      document.addEventListener('keydown', function (e) {
-        if (!overlay.hidden && e.key === 'Escape') close();
-      });
-      new MutationObserver(function () {
-        pill.querySelector('.rd-pill-text').textContent = T('pill');
-        if (!overlay.hidden) render();
-      }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  }
+  function relLum(rgb) {
+    var v = rgb.map(function (c) {
+      c = c / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function contrastRatio(a, b) {
+    var la = relLum(a), lb = relLum(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+  function onColor(rgb) {
+    var dark = [20, 22, 26], white = [255, 255, 255];
+    return contrastRatio(rgb, dark) >= contrastRatio(rgb, white) ? 'rgb(20,22,26)' : 'rgb(255,255,255)';
+  }
+
+  /* ---------- estado ---------- */
+  var S = null;
+  function freshState() {
+    var t = todayISO();
+    return {
+      checkin: addDays(t, 14),
+      checkout: addDays(t, 17),
+      adults: 2,
+      children: 0,
+      rooms: 1,
+      room: 0
+    };
+  }
+  function guests() { return S.adults + S.children; }
+  var ROOMS = [
+    {
+      cap: 2,
+      es: ['Habitación doble', 'Cama matrimonial o dos individuales'],
+      en: ['Double room', 'Double bed or two single beds']
+    },
+    {
+      cap: 3,
+      es: ['Habitación triple', 'Ideal para amigos o familias chicas'],
+      en: ['Triple room', 'Great for friends or small families']
+    },
+    {
+      cap: 4,
+      es: ['Habitación familiar', 'Más espacio para toda la familia'],
+      en: ['Family room', 'More space for the whole family']
     }
-  
-    function open() {
-      S = freshState();
-      lastFocus = document.activeElement;
-      overlay.hidden = false;
-      document.documentElement.classList.add('rd-lock');
-      render();
-      dialog.focus();
+  ];
+  function roomData(i) { return ROOMS[i][lang()]; }
+  function minRooms(i) { return Math.max(1, Math.ceil(guests() / ROOMS[i].cap)); }
+  function roomQty() { return Math.max(S.rooms, minRooms(S.room)); }
+  function nights() { return nightsBetween(S.checkin, S.checkout); }
+  function total() { return Math.max(0, nights()) * PRICES[S.room] * roomQty(); }
+  function syncRooms() {
+    S.rooms = Math.min(MAX_ROOMS, Math.max(S.rooms, minRooms(S.room)));
+  }
+
+  /* ---------- DOM ---------- */
+  var mount, els = {}, lastLang = lang();
+
+  function field(labelText, input) {
+    var label = h('span', { class: 'rd-label', text: labelText });
+    var wrap = h('label', { class: 'rd-field' }, [label, input]);
+    return { wrap: wrap, label: label };
+  }
+
+  function build() {
+    mount = document.querySelector('[data-rd-booking]') || document.getElementById('rd-booking');
+    if (!mount) return;
+
+    S = freshState();
+    mount.textContent = '';
+    mount.classList.add('rd-root');
+
+    var badge = h('span', { class: 'rd-badge', text: T('badge') });
+    var lead = h('p', { class: 'rd-disclaimer' });
+    var top = h('div', { class: 'rd-top' }, [badge, lead]);
+
+    var ci = h('input', { type: 'date', id: 'rd-ci', class: 'rd-input' });
+    var co = h('input', { type: 'date', id: 'rd-co', class: 'rd-input' });
+    var adults = h('select', { id: 'rd-adults', class: 'rd-input' });
+    var children = h('select', { id: 'rd-children', class: 'rd-input' });
+    var rooms = h('select', { id: 'rd-rooms', class: 'rd-input' });
+    var nightsInput = h('input', { type: 'text', id: 'rd-nights', class: 'rd-input rd-ro', readonly: true, tabindex: '-1' });
+
+    var i;
+    for (i = 1; i <= 10; i++) adults.appendChild(h('option', { value: String(i), text: String(i) }));
+    for (i = 0; i <= 6; i++) children.appendChild(h('option', { value: String(i), text: String(i) }));
+    for (i = 1; i <= MAX_ROOMS; i++) rooms.appendChild(h('option', { value: String(i), text: String(i) }));
+
+    var fCi = field('', ci), fCo = field('', co), fAd = field('', adults),
+        fCh = field('', children), fRo = field('', rooms), fNi = field('', nightsInput);
+
+    var grid = h('div', { class: 'rd-grid' }, [
+      fCi.wrap, fCo.wrap, fAd.wrap, fCh.wrap, fRo.wrap, fNi.wrap
+    ]);
+
+    var roomsTitle = h('h3');
+    var roomsHint = h('span');
+    var roomsHead = h('div', { class: 'rd-rooms-head' }, [roomsTitle, roomsHint]);
+    var roomsBox = h('div', { class: 'rd-rooms' });
+    var error = h('p', { class: 'rd-error', role: 'alert', tabindex: '-1' });
+
+    var main = h('div', { class: 'rd-main' }, [grid, roomsHead, roomsBox, error]);
+
+    var summaryTitle = h('h3');
+    function row(label) {
+      var l = h('span', { text: label });
+      var v = h('span', { text: '—' });
+      return { el: h('div', { class: 'rd-row' }, [l, v]), label: l, value: v };
     }
-    function close() {
-      overlay.hidden = true;
-      document.documentElement.classList.remove('rd-lock');
-      if (lastFocus && lastFocus.focus) lastFocus.focus();
-    }
-  
-    /* ---------- render por paso ---------- */
-    function progress() {
-      var names = T('steps');
-      return h('ol', { class: 'rd-progress' }, names.map(function (n, i) {
-        var st = (i + 1 < S.step) ? 'done' : (i + 1 === S.step ? 'now' : '');
-        return h('li', { class: 'rd-pg ' + st }, [h('span', { class: 'rd-dot', text: String(i + 1) }), h('span', { class: 'rd-pgl', text: n })]);
-      }));
-    }
-    function field(label, input) {
-      return h('label', { class: 'rd-field' }, [h('span', { class: 'rd-label', text: label }), input]);
-    }
-    function nav(backFn, nextLabel, nextFn) {
-      return h('div', { class: 'rd-nav' }, [
-        backFn ? h('button', { class: 'rd-btn rd-btn-ghost', type: 'button', text: T('back'), onclick: backFn }) : h('span'),
-        h('button', { class: 'rd-btn', type: 'button', text: nextLabel, onclick: nextFn })
-      ]);
-    }
-    function errorBox() { return h('p', { class: 'rd-error', role: 'alert', text: S.error || '' }); }
-    function selectNum(id, from, to, val) {
-      var s = h('select', { id: id, class: 'rd-input' });
-      for (var i = from; i <= to; i++) s.appendChild(h('option', { value: String(i), text: String(i), selected: i === val }));
-      return s;
-    }
-    function summaryBar() {
-      var n = nightsBetween(S.checkin, S.checkout), g = guests();
-      return h('div', { class: 'rd-sumbar' }, [
-        h('span', { text: fmtDate(S.checkin) + ' \u2192 ' + fmtDate(S.checkout) }),
-        h('span', { text: n + ' ' + plural(n, T('nightWord')) + ' \u00b7 ' + g + ' ' + plural(g, T('guestWord')) })
-      ]);
-    }
-  
-    function render() {
-      banner.textContent = T('banner');
-      body.textContent = '';
-      body.appendChild(h('h2', { class: 'rd-title', id: 'rd-title', text: NAME + ' \u00b7 ' + T('title') }));
-      body.appendChild(progress());
-      var views = [null, step1, step2, step3, step4, step5];
-      body.appendChild(views[S.step]());
-      body.scrollTop = 0;
-    }
-  
-    function step1() {
-      var ci = h('input', { type: 'date', id: 'rd-ci', class: 'rd-input', value: S.checkin, min: todayISO() });
-      var co = h('input', { type: 'date', id: 'rd-co', class: 'rd-input', value: S.checkout, min: addDays(todayISO(), 1) });
-      var ad = selectNum('rd-ad', 1, 10, S.adults), ch = selectNum('rd-ch', 0, 6, S.children);
-      var err = errorBox();
-      function go() {
-        S.checkin = ci.value; S.checkout = co.value;
-        S.adults = +ad.value; S.children = +ch.value;
-        if (!S.checkin || !S.checkout) { S.error = T('e_dates_req'); err.textContent = S.error; return; }
-        var n = nightsBetween(S.checkin, S.checkout);
-        if (n < 1) { S.error = T('e_dates'); err.textContent = S.error; return; }
-        if (n > 30) { S.error = T('e_dates_max'); err.textContent = S.error; return; }
-        S.error = ''; S.step = 2; render();
+    var rIn = row(''), rOut = row(''), rGuests = row(''), rRoom = row(''), rNights = row('');
+    var totalLabel = h('span', { text: '' });
+    var totalValue = h('strong', { text: '—' });
+    var totalRow = h('div', { class: 'rd-total' }, [totalLabel, totalValue]);
+
+    var ctaText = h('span');
+    var cta = h('a', { class: 'rd-cta', href: '#', target: '_blank', rel: 'noopener', 'aria-disabled': 'true' });
+    cta.innerHTML = WA_SVG;
+    cta.appendChild(ctaText);
+    var note = h('p', { class: 'rd-note' });
+
+    var summary = h('div', { class: 'rd-summary' }, [
+      summaryTitle, rIn.el, rOut.el, rGuests.el, rRoom.el, rNights.el, totalRow, cta, note
+    ]);
+    var side = h('div', { class: 'rd-side' }, [summary]);
+
+    var footerNote = h('span');
+    var sellerLink = h('a', { href: '#', target: '_blank', rel: 'noopener', hidden: true });
+    var footer = h('div', { class: 'rd-footer' }, [footerNote, sellerLink]);
+
+    var shell = h('div', { class: 'rd-shell' }, [
+      top,
+      h('div', { class: 'rd-layout' }, [main, side]),
+      footer
+    ]);
+    mount.appendChild(shell);
+
+    els = {
+      lead: lead, ci: ci, co: co, adults: adults, children: children, rooms: rooms, nightsInput: nightsInput,
+      fCi: fCi, fCo: fCo, fAd: fAd, fCh: fCh, fRo: fRo, fNi: fNi,
+      roomsTitle: roomsTitle, roomsHint: roomsHint, roomsBox: roomsBox, error: error,
+      summaryTitle: summaryTitle, rIn: rIn, rOut: rOut, rGuests: rGuests, rRoom: rRoom, rNights: rNights,
+      totalLabel: totalLabel, totalValue: totalValue, cta: cta, ctaText: ctaText, note: note,
+      footerNote: footerNote, sellerLink: sellerLink
+    };
+
+    ci.addEventListener('change', function () {
+      S.checkin = ci.value;
+      if (S.checkin && (!S.checkout || nightsBetween(S.checkin, S.checkout) < 1)) {
+        S.checkout = addDays(S.checkin, 1);
       }
-      return h('div', { class: 'rd-step' }, [
-        h('h3', { text: T('s1') }),
-        h('div', { class: 'rd-grid2' }, [field(T('checkin'), ci), field(T('checkout'), co)]),
-        h('div', { class: 'rd-grid2' }, [field(T('adults'), ad), field(T('children'), ch)]),
-        err, nav(null, T('next'), go)
-      ]);
-    }
-  
-    function step2() {
-      var n = nightsBetween(S.checkin, S.checkout);
-      var list = h('div', { class: 'rd-rooms' });
-      ROOMS.forEach(function (r, i) {
-        var q = roomQty(i), data = r[lang()];
-        var card = h('button', { type: 'button', class: 'rd-room' + (S.room === i ? ' rd-sel' : ''),
-          'aria-pressed': S.room === i ? 'true' : 'false',
-          onclick: function () { S.room = i; render(); } }, [
-          h('span', { class: 'rd-room-main' }, [
-            h('strong', { text: data[0] + (q > 1 ? ' \u00d7 ' + q : '') }),
-            h('small', { text: data[1] + ' \u00b7 ' + T('up') + ' ' + r.cap + ' ' + T('people') })
-          ]),
-          h('span', { class: 'rd-room-price' }, [
-            h('strong', { text: money(PRICES[i]) }), h('small', { text: T('perNight') })
-          ])
-        ]);
-        list.appendChild(card);
-      });
-      return h('div', { class: 'rd-step' }, [
-        h('h3', { text: T('s2') }), summaryBar(),
-        h('p', { class: 'rd-hint', text: T('example') }), list,
-        h('div', { class: 'rd-total' }, [h('span', { text: T('total') + ' (' + n + ' ' + plural(n, T('nightWord')) + ')' }), h('strong', { text: money(roomTotal(S.room)) })]),
-        nav(function () { S.step = 1; render(); }, T('next'), function () { S.step = 3; render(); })
-      ]);
-    }
-  
-    function step3() {
-      var nm = h('input', { type: 'text', id: 'rd-name', class: 'rd-input', value: S.name, autocomplete: 'off', maxlength: '80' });
-      var em = h('input', { type: 'email', id: 'rd-email', class: 'rd-input', value: S.email, autocomplete: 'off', maxlength: '120' });
-      var ph = h('input', { type: 'tel', id: 'rd-phone', class: 'rd-input', value: S.phone, autocomplete: 'off', maxlength: '30' });
-      var nt = h('textarea', { id: 'rd-notes', class: 'rd-input', rows: '2', maxlength: '200' });
-      nt.value = S.notes;
-      var err = errorBox();
-      function keep() { S.name = nm.value.trim(); S.email = em.value.trim(); S.phone = ph.value.trim(); S.notes = nt.value.trim(); }
-      function go() {
-        keep();
-        if (!S.name) { S.error = T('e_name'); err.textContent = S.error; nm.focus(); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(S.email)) { S.error = T('e_email'); err.textContent = S.error; em.focus(); return; }
-        S.error = ''; S.step = 4; render();
+      update();
+    });
+    co.addEventListener('change', function () { S.checkout = co.value; update(); });
+    adults.addEventListener('change', function () { S.adults = +adults.value; syncRooms(); update(); });
+    children.addEventListener('change', function () { S.children = +children.value; syncRooms(); update(); });
+    rooms.addEventListener('change', function () { S.rooms = +rooms.value; syncRooms(); update(); });
+
+    cta.addEventListener('click', function (e) {
+      if (cta.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        if (error.focus) error.focus();
+        return;
       }
-      return h('div', { class: 'rd-step' }, [
-        h('h3', { text: T('s3') }), summaryBar(),
-        field(T('name'), nm), field(T('email'), em), field(T('phone'), ph), field(T('notes'), nt),
-        err, nav(function () { keep(); S.step = 2; render(); }, T('next'), go)
-      ]);
+      // wa.me y mailto se abren normal: no se envia nada desde la pagina.
+    });
+
+    applyPalette();
+    update();
+
+    var observer = new MutationObserver(function () {
+      applyPalette();
+      if (lang() !== lastLang) {
+        lastLang = lang();
+        update();
+      }
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['lang', 'class', 'data-theme', 'style']
+    });
+  }
+
+  function applyPalette() {
+    if (!mount) return;
+    var root = document.documentElement;
+    var body = document.body;
+    var scope = mount.parentElement || body;
+
+    var accent = varColor(scope, ['--gold', '--accent', '--color-orange', '--primary', '--brand']) ||
+      varColor(body, ['--gold', '--accent', '--color-orange', '--primary', '--brand']) ||
+      varColor(root, ['--gold', '--accent', '--color-orange', '--primary', '--brand']) ||
+      [184, 134, 59];
+    var surface = varColor(scope, ['--card-bg', '--color-white', '--paper', '--surface']) ||
+      varColor(body, ['--card-bg', '--color-white', '--paper', '--surface']) ||
+      varColor(root, ['--card-bg', '--color-white', '--paper', '--surface']) ||
+      [255, 255, 255];
+    var text = varColor(scope, ['--ink', '--color-dark', '--text']) ||
+      varColor(body, ['--ink', '--color-dark', '--text']) ||
+      varColor(root, ['--ink', '--color-dark', '--text']) ||
+      (luminance(surface) < 0.45 ? [245, 246, 247] : [29, 32, 37]);
+    var muted = varColor(scope, ['--ink-soft', '--color-gray', '--muted']) ||
+      varColor(body, ['--ink-soft', '--color-gray', '--muted']) ||
+      mix(text, surface, 0.62);
+    var line = varColor(scope, ['--line', '--border', '--color-border']) ||
+      varColor(body, ['--line', '--border', '--color-border']);
+    var dark = luminance(surface) < 0.45;
+
+    mount.style.setProperty('--rd-accent', rgbStr(accent));
+    mount.style.setProperty('--rd-on-accent', onColor(accent));
+    mount.style.setProperty('--rd-text', rgbStr(text));
+    mount.style.setProperty('--rd-muted', rgbStr(muted));
+    mount.style.setProperty('--rd-surface', rgbStr(surface));
+    mount.style.setProperty('--rd-soft', rgbStr(mix(text, surface, 0.06)));
+    mount.style.setProperty('--rd-line', line ? rgbStr(line) : 'rgba(' + text[0] + ',' + text[1] + ',' + text[2] + ',0.18)');
+    mount.style.setProperty('color-scheme', dark ? 'dark' : 'light');
+  }
+
+  function validate() {
+    if (!S.checkin || !S.checkout) return T('errMissing');
+    var n = nights();
+    if (n < 1) return T('errOrder');
+    if (n > MAX_NIGHTS) return T('errMax');
+    if (S.rooms < minRooms(S.room)) return T('errRooms');
+    return '';
+  }
+
+  function buildMessage() {
+    var n = Math.max(0, nights());
+    var data = roomData(S.room);
+    var q = roomQty();
+    var guestsLine = S.adults + ' ' + plural(S.adults, T('adult'));
+    if (S.children > 0) guestsLine += ' · ' + S.children + ' ' + plural(S.children, T('child'));
+    return [
+      fill(T('waIntro'), 'name', NAME),
+      '• ' + T('waCheckin') + ': ' + fmtDate(S.checkin),
+      '• ' + T('waCheckout') + ': ' + fmtDate(S.checkout),
+      '• ' + T('waGuests') + ': ' + guestsLine,
+      '• ' + T('waRoom') + ': ' + data[0] + (q > 1 ? ' × ' + q : ''),
+      '• ' + T('waNights') + ': ' + n + ' ' + plural(n, T('night')),
+      '• ' + T('waTotal') + ': ' + money(total())
+    ].join('\n');
+  }
+
+  function contactHref() {
+    var msg = buildMessage();
+    if (PHONE) return 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(msg);
+    if (EMAIL) {
+      return 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(fill(T('mailSubject'), 'name', NAME)) +
+        '&body=' + encodeURIComponent(msg);
     }
-  
-    function step4() {
-      var n = nightsBetween(S.checkin, S.checkout), data = ROOMS[S.room][lang()], q = roomQty(S.room);
-      var ro = function (id, label, val, cls) {
-        return field(label, h('input', { type: 'text', id: id, class: 'rd-input rd-ro ' + (cls || ''), value: val, readonly: true, tabindex: '-1', autocomplete: 'off' }));
-      };
-      var btn = h('button', { class: 'rd-btn rd-pay', type: 'button', text: T('pay') + ' ' + money(roomTotal(S.room)) + ' (demo)' });
-      btn.addEventListener('click', function () {
-        btn.disabled = true; btn.textContent = T('processing');
-        S.code = 'DEMO-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-        setTimeout(function () { S.step = 5; render(); }, 1100);
-      });
-      return h('div', { class: 'rd-step' }, [
-        h('h3', { text: T('s4') }),
-        h('div', { class: 'rd-sum' }, [
-          h('strong', { text: T('summary') }),
-          h('div', { class: 'rd-row' }, [h('span', { text: data[0] + (q > 1 ? ' \u00d7 ' + q : '') + ' \u00b7 ' + n + ' ' + plural(n, T('nightWord'))}), h('span', { text: money(roomTotal(S.room)) })]),
-          h('div', { class: 'rd-row rd-muted' }, [h('span', { text: fmtDate(S.checkin) + ' \u2192 ' + fmtDate(S.checkout) }), h('span', { text: guests() + ' ' + plural(guests(), T('guestWord')) })])
+    return '';
+  }
+
+  function renderRooms() {
+    els.roomsBox.textContent = '';
+    ROOMS.forEach(function (room, i) {
+      var data = roomData(i);
+      var active = S.room === i;
+      var qty = active ? roomQty() : minRooms(i);
+      var btn = h('button', {
+        type: 'button',
+        class: 'rd-room',
+        'aria-pressed': active ? 'true' : 'false',
+        onclick: function () {
+          S.room = i;
+          syncRooms();
+          update();
+        }
+      }, [
+        h('span', { class: 'rd-room-check', 'aria-hidden': 'true', text: '✓' }),
+        h('span', { class: 'rd-room-main' }, [
+          h('strong', { text: data[0] + (active && qty > 1 ? ' × ' + qty : '') }),
+          h('small', { text: data[1] + ' · ' + fill(T('cap'), 'n', room.cap) })
         ]),
-        h('p', { class: 'rd-hint rd-testcard', text: T('testCard') }),
-        ro('rd-cn', T('cardNumber'), '4242 4242 4242 4242'),
-        ro('rd-cname', T('cardName'), S.name),
-        h('div', { class: 'rd-grid2' }, [ro('rd-cexp', T('cardExp'), '12/30'), ro('rd-ccvc', T('cardCvc'), '123')]),
-        h('div', { class: 'rd-nav' }, [
-          h('button', { class: 'rd-btn rd-btn-ghost', type: 'button', text: T('back'), onclick: function () { S.step = 3; render(); } }), btn
+        h('span', { class: 'rd-room-price' }, [
+          h('strong', { text: money(PRICES[i]) }),
+          h('small', { text: T('perNight') })
         ])
       ]);
+      els.roomsBox.appendChild(btn);
+    });
+  }
+
+  function update() {
+    if (!mount || !S) return;
+    syncRooms();
+
+    var n = nights();
+    var err = validate();
+    var href = err ? '' : contactHref();
+    var room = roomData(S.room);
+
+    els.ci.value = S.checkin;
+    els.co.value = S.checkout;
+    els.ci.min = todayISO();
+    els.co.min = addDays(S.checkin || todayISO(), 1);
+    els.adults.value = String(S.adults);
+    els.children.value = String(S.children);
+    els.rooms.value = String(S.rooms);
+    els.nightsInput.value = n > 0 ? n + ' ' + plural(n, T('night')) : '—';
+
+    els.fCi.label.textContent = T('checkin');
+    els.fCo.label.textContent = T('checkout');
+    els.fAd.label.textContent = T('adults');
+    els.fCh.label.textContent = T('children');
+    els.fRo.label.textContent = T('rooms');
+    els.fNi.label.textContent = T('nights');
+
+    els.roomsTitle.textContent = T('roomsTitle');
+    els.roomsHint.textContent = T('roomsHint');
+    els.summaryTitle.textContent = T('summary');
+    els.rIn.label.textContent = T('checkin');
+    els.rOut.label.textContent = T('checkout');
+    els.rGuests.label.textContent = T('rowGuests');
+    els.rRoom.label.textContent = T('rowRoom');
+    els.rNights.label.textContent = T('rowNights');
+    els.totalLabel.textContent = T('total');
+    els.lead.textContent = T('lead');
+
+    els.rIn.value.textContent = fmtDate(S.checkin);
+    els.rOut.value.textContent = fmtDate(S.checkout);
+    els.rGuests.value.textContent = guests() + ' ' + plural(guests(), T('guest'));
+    els.rRoom.value.textContent = room[0] + (roomQty() > 1 ? ' × ' + roomQty() : '');
+    els.rNights.value.textContent = n > 0 ? n + ' ' + plural(n, T('night')) : '—';
+    els.totalValue.textContent = n > 0 ? money(total()) : '—';
+
+    renderRooms();
+
+    els.error.textContent = err;
+    els.ctaText.textContent = PHONE ? T('cta') : (EMAIL ? T('ctaMail') : T('cta'));
+    els.cta.setAttribute('href', href || '#');
+    els.cta.setAttribute('aria-disabled', href ? 'false' : 'true');
+    els.note.textContent = err || (PHONE || EMAIL ? T('note') : T('noteNoContact'));
+    els.footerNote.textContent = T('priceNote');
+
+    if (SELLER) {
+      els.sellerLink.hidden = false;
+      els.sellerLink.textContent = T('seller');
+      els.sellerLink.href = 'https://wa.me/' + SELLER + '?text=' +
+        encodeURIComponent(fill(T('sellerMsg'), 'name', NAME));
+    } else {
+      els.sellerLink.hidden = true;
     }
-  
-    function step5() {
-      var n = nightsBetween(S.checkin, S.checkout), data = ROOMS[S.room][lang()], q = roomQty(S.room);
-      var mail = h('div', { class: 'rd-mail' }, [
-        h('div', { class: 'rd-mail-h' }, [h('span', { text: T('emailTo') + ': ' + S.email }), h('strong', { text: T('emailSubject') + ' \u00b7 ' + NAME })]),
-        h('p', { text: T('emailBody') }),
-        h('p', { class: 'rd-muted', text: T('code') + ' ' + S.code + ' \u00b7 ' + data[0] + (q > 1 ? ' \u00d7 ' + q : '') + ' \u00b7 ' + fmtDate(S.checkin) + ' \u2192 ' + fmtDate(S.checkout) + ' \u00b7 ' + money(roomTotal(S.room)) })
-      ]);
-      var actions = [];
-      if (SELLER) {
-        actions.push(h('a', { class: 'rd-btn', target: '_blank', rel: 'noopener', text: T('want'),
-          href: 'https://wa.me/' + SELLER + '?text=' + encodeURIComponent(T('wantMsg') + NAME) }));
-      }
-      actions.push(h('button', { class: 'rd-btn rd-btn-ghost', type: 'button', text: T('close'), onclick: close }));
-      return h('div', { class: 'rd-step rd-done' }, [
-        h('div', { class: 'rd-check', 'aria-hidden': 'true', text: '\u2713' }),
-        h('h3', { text: T('s5') }),
-        h('p', { class: 'rd-code', text: T('code') + ': ' + S.code }),
-        summaryBar(),
-        h('p', { class: 'rd-hint', text: T('emailPrev') }), mail,
-        h('p', { class: 'rd-notice', text: T('notice') }),
-        h('div', { class: 'rd-actions' }, actions)
-      ]);
-    }
-  
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
-    else build();
-  })();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
+  else build();
+})();

@@ -363,49 +363,14 @@
 
         setText('cta-heading', t('cta.heading'));
         setText('cta-subtitle', t('cta.subtitle'));
-        setText('cta-btn-text', t('cta.btn'));
-        if (phoneDigits) {
-            setAttr('cta-btn', 'href', waUrl);
-        } else if (con.email) {
-            setAttr('cta-btn', 'href', 'mailto:' + con.email);
-        }
 
-        var bkBar = document.getElementById('booking-bar');
-        if (bkBar) {
-            if (!phoneDigits) {
-                bkBar.style.display = 'none';
-            } else {
-                bkBar.style.display = '';
-                setText('bk-label-checkin', t('bk.checkin'));
-                setText('bk-label-checkout', t('bk.checkout'));
-                setText('bk-label-guests', t('bk.guests'));
-                setText('bk-submit-text', t('bk.submit'));
-                setText('bk-note', t('bk.note'));
-                var sel = document.getElementById('bk-guests');
-                if (sel && !sel.options.length) {
-                    for (var gi = 1; gi <= 9; gi++) {
-                        var opt = document.createElement('option');
-                        opt.value = gi;
-                        opt.textContent = gi;
-                        sel.appendChild(opt);
-                    }
-                    var optPlus = document.createElement('option');
-                    optPlus.value = '10';
-                    optPlus.textContent = '+9';
-                    sel.appendChild(optPlus);
-                }
-                if (sel && !sel.value) sel.value = '2';
-                var isoToday = function(d) {
-                    return d.getFullYear() + '-' +
-                        ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
-                        ('0' + d.getDate()).slice(-2);
-                };
-                var ciInput = document.getElementById('bk-checkin');
-                var coInput = document.getElementById('bk-checkout');
-                var now = new Date();
-                if (ciInput) ciInput.min = isoToday(now);
-                if (coInput) coInput.min = isoToday(now);
-            }
+        // Respaldo estatico: el motor de reservas lo reemplaza al montarse.
+        setText('bk-note', t('bk.note'));
+        setText('bk-submit-text', t('bk.submit'));
+        if (phoneDigits) {
+            setAttr('bk-fallback', 'href', waUrl);
+        } else if (con.email) {
+            setAttr('bk-fallback', 'href', 'mailto:' + con.email);
         }
 
         setText('nav-link-about', t('nav.about'));
@@ -532,51 +497,6 @@
         updateThemeIcon();
     }
 
-    function handleBookingSubmit(e) {
-        e.preventDefault();
-        var errEl = document.getElementById('bk-error');
-        var ciInput = document.getElementById('bk-checkin');
-        var coInput = document.getElementById('bk-checkout');
-        if (!config || !config.contact || !errEl) return;
-        var digits = (config.contact.whatsapp || '').replace(/\D/g, '');
-        if (!digits) return;
-        if (!ciInput.value || !coInput.value) {
-            errEl.textContent = t('bk.err_missing');
-            errEl.hidden = false;
-            return;
-        }
-        var ci = new Date(ciInput.value + 'T12:00:00');
-        var co = new Date(coInput.value + 'T12:00:00');
-        var today = new Date();
-        today.setHours(12, 0, 0, 0);
-        if (co <= ci) {
-            errEl.textContent = t('bk.err_order');
-            errEl.hidden = false;
-            return;
-        }
-        if (ci < today) {
-            errEl.textContent = t('bk.err_past');
-            errEl.hidden = false;
-            return;
-        }
-        errEl.hidden = true;
-        var sel = document.getElementById('bk-guests');
-        var rawGuests = parseInt(sel && sel.value, 10) || 2;
-        var guests = rawGuests >= 10 ? '+9' : String(rawGuests);
-        var nights = Math.round((co - ci) / 86400000);
-        var fmt = function(d) {
-            return ('0' + d.getDate()).slice(-2) + '/' +
-                ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
-        };
-        var gWord = rawGuests === 1 ? t('bk.guest_one') : t('bk.guest_many');
-        var nWord = nights === 1 ? t('bk.night_one') : t('bk.night_many');
-        var name = (config.business || {}).short_name || (config.business || {}).name || '';
-        var msg = currentLang === 'en'
-            ? 'Hi ' + name + "! I'd like to book from " + fmt(ci) + ' to ' + fmt(co) + ' (' + nights + ' ' + nWord + ') for ' + guests + ' ' + gWord + '. Is it available?'
-            : 'Hola ' + name + '! Quiero reservar del ' + fmt(ci) + ' al ' + fmt(co) + ' (' + nights + ' ' + nWord + ') para ' + guests + ' ' + gWord + '. ¿Hay disponibilidad?';
-        window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
-    }
-
     function initInteractions() {
         var overlay = document.querySelector('.mobile-menu-overlay');
         var mobileMenu = document.querySelector('.mobile-menu');
@@ -611,6 +531,7 @@
             btn.addEventListener('click', function() {
                 currentLang = btn.dataset.lang;
                 localStorage.setItem('c_lang', currentLang);
+                document.documentElement.lang = currentLang === 'es' ? 'es-AR' : 'en';
                 document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.toggle('active', b === btn); });
                 if (config) render(config);
             });
@@ -625,12 +546,6 @@
             themeBtn.removeEventListener('click', toggleTheme);
             themeBtn.addEventListener('click', toggleTheme);
         }
-
-        if (!window.__bkBound) {
-            window.__bkBound = true;
-            var bkForm = document.getElementById('booking-form');
-            if (bkForm) bkForm.addEventListener('submit', handleBookingSubmit);
-        }
     }
 
     function onScroll() {
@@ -638,6 +553,7 @@
         if (header) header.classList.toggle('scrolled', window.scrollY > 50);
     }
 
+    document.documentElement.lang = currentLang === 'es' ? 'es-AR' : 'en';
     initTheme();
     loadConfig().then(function(c) { if (c) render(c); });
 })();
