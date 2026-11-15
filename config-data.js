@@ -1,0 +1,410 @@
+window.__CONFIG = {
+  "business": {
+    "name": "Hosteia Soles de Data",
+    "short_name": "Hosteia Soles de Data",
+    "tagline": "Hosteia Soles de Data · Via Data",
+    "description": "Hosteia Soles de Data es tu refugio en Via Data después de recorrer.",
+    "category": "Hospedaje",
+    "followers": 0
+  },
+  "hero": {
+    "video": "videos/city-video.mp4",
+    "poster": "fotos/foto-01.webp",
+    "eyebrow": "Via Data · 8JWC+WW5",
+    "title_line1": "Siéntete como en casa en",
+    "title_em": "Hosteia Soles de Data",
+    "title_line2": "",
+    "subtitle": "Hosteia Soles de Data: tu alojamiento en Via Data."
+  },
+  "location": {
+    "address": "8JWC+WW5, Via Data, Gral Villamil, Ecuador",
+    "district": "Via Data",
+    "city": "Via Data",
+    "province": "",
+    "country": "Argentina",
+    "destination_type": "city",
+    "map_query": "8JWC+WW5, Via Data, Gral Villamil, Ecuador, Via Data",
+    "map_embed": "https://maps.google.com/maps?q=8JWC%2BWW5%2C+Via+Data%2C+Gral+Villamil%2C+Ecuador%2C+Via+Data&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    "description": "Via Data. Un lugar desde donde conocer la zona.",
+    "video": "videos/city-video.mp4"
+  },
+  "contact": {
+    "whatsapp": "https://wa.me/593982697538",
+    "phone": "+593982697538",
+    "email": ""
+  },
+  "social": {
+    "instagram": "https://www.google.com/maps/place/Hosteia+Soles+de+Data/data=!4m10!3m9!1s0x90326c0f84c888a1:0xf83aa2b9cec3c378!5m2!4m1!1i2!8m2!3d-2.652734!4d-80.377655!16s%2Fg%2F11h1ml0wd0!19sChIJoYjIhA9sMpAReMPDzrmiOvg?authuser=0&hl=es&g_ep=EgoyMDI2MTExMC4wIJJjKgBIAVAD&rclk=1",
+    "place_url": "https://www.google.com/maps/place/Hosteia+Soles+de+Data/data=!4m10!3m9!1s0x90326c0f84c888a1:0xf83aa2b9cec3c378!5m2!4m1!1i2!8m2!3d-2.652734!4d-80.377655!16s%2Fg%2F11h1ml0wd0!19sChIJoYjIhA9sMpAReMPDzrmiOvg?authuser=0&hl=es&g_ep=EgoyMDI2MTExMC4wIJJjKgBIAVAD&rclk=1",
+    "website": "",
+    "facebook": "",
+    "tiktok": ""
+  },
+  "about": {
+    "eyebrow": "Lo que hacemos",
+    "title": "Te contamos sobre Hosteia Soles de Data.",
+    "paragraphs": [
+      "Hosteia Soles de Data recibe huéspedes en Via Data. Sin comisiones de plataformas: la reserva se coordina directamente con nosotros."
+    ],
+    "photos": [
+      {
+        "src": "fotos/foto-02.webp",
+        "alt": "Foto del alojamiento"
+      },
+      {
+        "src": "fotos/foto-03.webp",
+        "alt": "Detalle del alojamiento"
+      }
+    ]
+  },
+  "trust_bar": [
+    "Respondemos por WhatsApp",
+    "Sin intermediarios",
+    "Precio y disponibilidad por consulta"
+  ],
+  "amenities": [
+    {
+      "key": "bed",
+      "title": "Habitaciones para descansar",
+      "description": "Un lugar donde alojarse durante tu visita.",
+      "icon": "bed"
+    },
+    {
+      "key": "trust",
+      "title": "Reserva directa por WhatsApp",
+      "description": "Consultas y reservas sin intermediarios.",
+      "icon": "trust"
+    },
+    {
+      "key": "pin",
+      "title": "Ubicación",
+      "description": "Cómo llegar, por WhatsApp o en el mapa.",
+      "icon": "pin"
+    }
+  ],
+  "testimonials": [],
+  "testimonials_meta": {
+    "source": "none"
+  },
+  "gallery": {
+    "images": [
+      {
+        "src": "fotos/foto-01.webp",
+        "alt": "Vista del alojamiento"
+      },
+      {
+        "src": "fotos/foto-02.webp",
+        "alt": "Foto del alojamiento"
+      },
+      {
+        "src": "fotos/foto-03.webp",
+        "alt": "Detalle del alojamiento"
+      },
+      {
+        "src": "fotos/foto-04.webp",
+        "alt": "Espacios del alojamiento"
+      },
+      {
+        "src": "fotos/foto-05.webp",
+        "alt": "Imagen del alojamiento"
+      },
+      {
+        "src": "fotos/foto-06.webp",
+        "alt": "Alojamiento"
+      },
+      {
+        "src": "fotos/foto-07.webp",
+        "alt": "Vista del alojamiento"
+      },
+      {
+        "src": "fotos/foto-08.webp",
+        "alt": "Foto del alojamiento"
+      },
+      {
+        "src": "fotos/foto-09.webp",
+        "alt": "Detalle del alojamiento"
+      },
+      {
+        "src": "fotos/foto-10.webp",
+        "alt": "Espacios del alojamiento"
+      },
+      {
+        "src": "fotos/foto-11.webp",
+        "alt": "Imagen del alojamiento"
+      },
+      {
+        "src": "fotos/foto-12.webp",
+        "alt": "Alojamiento"
+      }
+    ],
+    "videos": []
+  },
+  "pricing": {
+    "eyebrow": "Precios",
+    "amount": "Consultar",
+    "period": "SEGÚN TEMPORADA",
+    "title": "Escríbenos y te enviamos los precios actualizados según fechas.",
+    "cta_text": "Consultar precios"
+  },
+  "faq": [
+    {
+      "question": "¿Se admiten mascotas?",
+      "answer": "Se consulta por WhatsApp según cada caso."
+    },
+    {
+      "question": "¿Cuál es la política de cancelación?",
+      "answer": "Las condiciones de cancelación se confirman por WhatsApp antes de reservar."
+    },
+    {
+      "question": "¿Hay WiFi?",
+      "answer": "Se confirma por WhatsApp antes de reservar."
+    },
+    {
+      "question": "¿A qué hora es el check-in y el check-out?",
+      "answer": "Los horarios se coordinan por WhatsApp según la llegada y la salida."
+    },
+    {
+      "question": "¿Está cerca del centro?",
+      "answer": "Escríbenos y te confirmamos la distancia exacta y cómo llegar desde el terminal o el aeropuerto."
+    }
+  ],
+  "footer": {
+    "description": "Hosteia Soles de Data",
+    "copyright": "© 2026 Hosteia Soles de Data. Todos los derechos reservados.",
+    "made_by": "Sitio hecho por Aizly"
+  },
+  "i18n": {
+    "en": {
+      "business": {
+        "name": "Hosteia Soles de Data",
+        "short_name": "Hosteia Soles de Data",
+        "tagline": "Hosteia Soles de Data · Accommodation",
+        "description": "Hosteia Soles de Data in Via Data: direct bookings over WhatsApp.",
+        "category": "Accommodation"
+      },
+      "hero": {
+        "video": "videos/city-video.mp4",
+        "poster": "fotos/foto-01.webp",
+        "eyebrow": "Via Data · 8JWC+WW5",
+        "title_line1": "Live the best experience at",
+        "title_em": "Hosteia Soles de Data",
+        "title_line2": "",
+        "subtitle": "A place to rest in Via Data."
+      },
+      "about": {
+        "eyebrow": "Meet the team",
+        "title": "Let us tell you about Hosteia Soles de Data.",
+        "paragraphs": [
+          "Hosteia Soles de Data is accommodation in Via Data. Availability, prices and services are handled directly with us over WhatsApp, with no middlemen."
+        ],
+        "photos": [
+          {
+            "src": "fotos/foto-02.webp",
+            "alt": "Foto del alojamiento"
+          },
+          {
+            "src": "fotos/foto-03.webp",
+            "alt": "Detalle del alojamiento"
+          }
+        ]
+      },
+      "location": {
+        "description": "Via Data. Directions available over WhatsApp."
+      },
+      "gallery": {
+        "images": [
+          {
+            "src": "fotos/foto-01.webp",
+            "alt": "View of the accommodation"
+          },
+          {
+            "src": "fotos/foto-02.webp",
+            "alt": "Photo of the accommodation"
+          },
+          {
+            "src": "fotos/foto-03.webp",
+            "alt": "Detail of the accommodation"
+          },
+          {
+            "src": "fotos/foto-04.webp",
+            "alt": "Accommodation spaces"
+          },
+          {
+            "src": "fotos/foto-05.webp",
+            "alt": "Image of the accommodation"
+          },
+          {
+            "src": "fotos/foto-06.webp",
+            "alt": "Accommodation"
+          },
+          {
+            "src": "fotos/foto-07.webp",
+            "alt": "View of the accommodation"
+          },
+          {
+            "src": "fotos/foto-08.webp",
+            "alt": "Photo of the accommodation"
+          },
+          {
+            "src": "fotos/foto-09.webp",
+            "alt": "Detail of the accommodation"
+          },
+          {
+            "src": "fotos/foto-10.webp",
+            "alt": "Accommodation spaces"
+          },
+          {
+            "src": "fotos/foto-11.webp",
+            "alt": "Image of the accommodation"
+          },
+          {
+            "src": "fotos/foto-12.webp",
+            "alt": "Accommodation"
+          }
+        ]
+      },
+      "pricing": {
+        "eyebrow": "Prices",
+        "amount": "Ask us",
+        "period": "Varies by season",
+        "title": "Message us for updated prices based on your dates.",
+        "cta_text": "Check prices"
+      },
+      "faq": [
+        {
+          "question": "Can I pay by card?",
+          "answer": "Available payment methods can be confirmed over WhatsApp."
+        },
+        {
+          "question": "Can I leave my luggage?",
+          "answer": "Ask over WhatsApp depending on arrival and departure times."
+        },
+        {
+          "question": "Is breakfast included?",
+          "answer": "This is confirmed over WhatsApp for your dates."
+        },
+        {
+          "question": "What is the cancellation policy?",
+          "answer": "Cancellation terms are confirmed over WhatsApp before booking."
+        },
+        {
+          "question": "Is it close to downtown?",
+          "answer": "Message us and we'll confirm the exact distance and how to get here from the bus station or airport."
+        }
+      ],
+      "trust_bar": [
+        "We reply on WhatsApp",
+        "No middlemen",
+        "Price and availability on request"
+      ],
+      "amenities": [
+        {
+          "title": "Rooms to rest",
+          "description": "A place to stay during your visit.",
+          "icon": "bed"
+        },
+        {
+          "title": "Direct booking on WhatsApp",
+          "description": "Questions and bookings without middlemen.",
+          "icon": "trust"
+        },
+        {
+          "title": "Location",
+          "description": "Directions available over WhatsApp or on the map.",
+          "icon": "pin"
+        }
+      ],
+      "testimonials": [],
+      "footer": {
+        "description": "Hosteia Soles de Data",
+        "copyright": "© 2026 Hosteia Soles de Data. All rights reserved.",
+        "made_by": "Site by Aizly"
+      }
+    }
+  },
+  "schema_ld": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "LodgingBusiness",
+        "name": "Hosteia Soles de Data",
+        "description": "Alojamiento en Via Data: Hosteia Soles de Data.",
+        "url": "",
+        "telephone": "+593982697538",
+        "email": "",
+        "image": "",
+        "sameAs": [
+          "https://www.google.com/maps/place/Hosteia+Soles+de+Data/data=!4m10!3m9!1s0x90326c0f84c888a1:0xf83aa2b9cec3c378!5m2!4m1!1i2!8m2!3d-2.652734!4d-80.377655!16s%2Fg%2F11h1ml0wd0!19sChIJoYjIhA9sMpAReMPDzrmiOvg?authuser=0&hl=es&g_ep=EgoyMDI2MTExMC4wIJJjKgBIAVAD&rclk=1"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "8JWC+WW5, Via Data, Gral Villamil, Ecuador",
+          "addressLocality": "Via Data",
+          "addressCountry": "AR"
+        },
+        "amenityFeature": [
+          {
+            "@type": "LocationFeatureSpecification",
+            "name": "Habitaciones para descansar",
+            "value": true
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            "name": "Reserva directa por WhatsApp",
+            "value": true
+          },
+          {
+            "@type": "LocationFeatureSpecification",
+            "name": "Ubicación",
+            "value": true
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "¿Se admiten mascotas?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Se consulta por WhatsApp según cada caso."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cuál es la política de cancelación?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Las condiciones de cancelación se confirman por WhatsApp antes de reservar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Hay WiFi?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Se confirma por WhatsApp antes de reservar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿A qué hora es el check-in y el check-out?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Los horarios se coordinan por WhatsApp según la llegada y la salida."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Está cerca del centro?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Escríbenos y te confirmamos la distancia exacta y cómo llegar desde el terminal o el aeropuerto."
+            }
+          }
+        ]
+      }
+    ]
+  }
+};

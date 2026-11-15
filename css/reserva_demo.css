@@ -1,0 +1,78 @@
+/* Reserva online - DEMO. Todo bajo el prefijo .rd- para no pisar la plantilla. */
+.rd-root { --rd-accent: #b8863b; --rd-on-accent: #fff; font-family: inherit; }
+.rd-root *, .rd-root *::before, .rd-root *::after { box-sizing: border-box; }
+.rd-lock, .rd-lock body { overflow: hidden; }
+
+.rd-pill { position: fixed; left: 18px; bottom: 22px; z-index: 9990; display: inline-flex; align-items: center; gap: 9px;
+  padding: 11px 18px 11px 11px; border: 0; border-radius: 999px; cursor: pointer; font: inherit; font-size: .9rem; font-weight: 700;
+  background: var(--rd-accent); color: var(--rd-on-accent); box-shadow: 0 8px 24px rgba(0,0,0,.28); }
+.rd-pill:hover { transform: translateY(-2px); }
+.rd-pill:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.rd-pill-tag { font-size: .62rem; letter-spacing: .08em; padding: 4px 8px; border-radius: 999px; background: rgba(0,0,0,.22); color: inherit; }
+@media (max-width: 768px) { .rd-pill { bottom: 86px; left: 12px; font-size: .84rem; } }
+
+.rd-overlay { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center;
+  padding: 18px; background: rgba(10,12,14,.62); backdrop-filter: blur(3px); }
+.rd-overlay[hidden] { display: none; }
+.rd-dialog { position: relative; width: 100%; max-width: 540px; max-height: calc(100vh - 36px); display: flex; flex-direction: column;
+  background: #fff; color: #1d2025; border-radius: 18px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); outline: none; }
+.rd-banner { padding: 9px 44px 9px 16px; background: #1d2025; color: #f6d77a; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
+.rd-x { position: absolute; top: 4px; right: 8px; width: 34px; height: 34px; border: 0; background: transparent; color: #fff; font-size: 1.6rem; cursor: pointer; line-height: 1; }
+.rd-body { padding: 20px 22px 22px; overflow-y: auto; }
+.rd-title { margin: 0 0 14px; font-size: 1.15rem; line-height: 1.25; color: #1d2025; }
+.rd-step h3 { margin: 14px 0 10px; font-size: 1rem; color: #1d2025; }
+
+.rd-progress { list-style: none; display: flex; gap: 4px; margin: 0 0 6px; padding: 0; }
+.rd-pg { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .66rem; color: #8a9099; }
+.rd-dot { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .72rem; font-weight: 700; background: #e7e9ec; color: #6b717a; }
+.rd-pg.now .rd-dot { background: var(--rd-accent); color: var(--rd-on-accent); }
+.rd-pg.done .rd-dot { background: #1d2025; color: #fff; }
+.rd-pg.now { color: #1d2025; font-weight: 700; }
+
+.rd-field { display: block; margin: 0 0 12px; }
+.rd-label { display: block; margin-bottom: 5px; font-size: .78rem; font-weight: 600; color: #4a5059; }
+.rd-input { width: 100%; padding: 11px 12px; border: 1.5px solid #d5d9de; border-radius: 10px; font: inherit; font-size: .95rem; background: #fff; color: #1d2025; }
+.rd-input:focus { outline: none; border-color: var(--rd-accent); box-shadow: 0 0 0 3px rgba(0,0,0,.08); }
+.rd-ro { background: #f3f4f6; color: #4a5059; cursor: default; letter-spacing: .03em; }
+.rd-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rd-hint { margin: 8px 0; font-size: .76rem; color: #6b717a; }
+.rd-testcard { padding: 8px 10px; border-radius: 8px; background: #fff7dc; color: #6b5200; font-weight: 600; }
+.rd-error { min-height: 1.1em; margin: 4px 0 0; font-size: .8rem; color: #b3261e; font-weight: 600; }
+.rd-muted { color: #6b717a; font-size: .8rem; }
+
+.rd-sumbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; margin: 0 0 8px; padding: 9px 12px; border-radius: 10px; background: #f3f4f6; font-size: .8rem; color: #3b4048; font-weight: 600; }
+.rd-rooms { display: grid; gap: 10px; margin: 8px 0 12px; }
+.rd-room { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; text-align: left; font: inherit;
+  border: 1.5px solid #d5d9de; border-radius: 12px; background: #fff; color: #1d2025; cursor: pointer; }
+.rd-room.rd-sel { border-color: var(--rd-accent); box-shadow: 0 0 0 3px rgba(0,0,0,.07); background: #fffdf8; }
+.rd-room-main, .rd-room-price { display: flex; flex-direction: column; gap: 2px; }
+.rd-room-price { text-align: right; white-space: nowrap; }
+.rd-room small { font-size: .74rem; color: #6b717a; }
+.rd-total { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 0 4px; font-size: .9rem; }
+.rd-total strong { font-size: 1.15rem; }
+
+.rd-sum { padding: 12px 14px; border-radius: 12px; background: #f3f4f6; margin-bottom: 10px; }
+.rd-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .86rem; }
+
+.rd-nav, .rd-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.rd-actions { justify-content: center; }
+.rd-btn { display: inline-flex; justify-content: center; align-items: center; padding: 12px 20px; border: 0; border-radius: 12px; cursor: pointer; text-decoration: none;
+  font: inherit; font-size: .92rem; font-weight: 700; background: var(--rd-accent); color: var(--rd-on-accent); }
+.rd-btn:disabled { opacity: .6; cursor: wait; }
+.rd-btn-ghost { background: #eceef1; color: #1d2025; }
+.rd-pay { flex: 1; }
+
+.rd-done { text-align: center; }
+.rd-check { width: 56px; height: 56px; margin: 6px auto 0; border-radius: 50%; display: grid; place-items: center; font-size: 1.7rem; background: var(--rd-accent); color: var(--rd-on-accent); }
+.rd-code { margin: 4px 0 10px; font-weight: 700; letter-spacing: .05em; }
+.rd-mail { margin: 6px 0 12px; padding: 12px 14px; text-align: left; border: 1px dashed #b9bec6; border-radius: 12px; background: #fafafa; font-size: .84rem; }
+.rd-mail p { margin: 6px 0 0; }
+.rd-mail-h { display: flex; flex-direction: column; gap: 3px; padding-bottom: 8px; border-bottom: 1px solid #e3e5e8; font-size: .8rem; }
+.rd-notice { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: #fff7dc; color: #6b5200; font-size: .8rem; font-weight: 600; text-align: left; }
+
+@media (max-width: 560px) {
+  .rd-overlay { padding: 0; align-items: flex-end; }
+  .rd-dialog { max-width: none; max-height: 100dvh; height: 100dvh; border-radius: 0; }
+  .rd-body { padding: 16px 16px 24px; }
+}
+@media (prefers-reduced-motion: no-preference) { .rd-pill { transition: transform .15s ease; } }

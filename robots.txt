@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hosteia-soles-de-data-via-data.vercel.app/sitemap.xml
